@@ -6,6 +6,9 @@ class Autor(models.Model):
     nasc = models.DateField(null=True, blank=True)
     nacio = models.CharField(max_length=50, null=True, blank=True)
     biogr = models.TextField()
+
+    def __str__(self):
+        return f'{self.autor} {self.s_nome}'
     
     
 class Editora(models.Model):
@@ -15,6 +18,9 @@ class Editora(models.Model):
     telefone = models.CharField(max_length=20, null=True,blank=True)
     email = models.EmailField(null=True, blank=True)
     site = models.URLField(null=True, blank=True)
+
+    def __str__(self):
+        return self.editora
 
    
 class Livro(models.Model):
@@ -32,5 +38,4 @@ class Livro(models.Model):
     desconto = models.BooleanField(default=True)
     dimensoes = models.CharField()
     peso = models.DecimalField(max_digits=10, decimal_places=2)
-
 
