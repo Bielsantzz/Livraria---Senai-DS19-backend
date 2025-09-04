@@ -2,13 +2,13 @@ from django.db import models
 
 class Autor(models.Model):
     autor = models.CharField(max_length=100)
-    s_nome = models.CharField(max_length=100) 
+    s_autor = models.CharField(max_length=100) 
     nasc = models.DateField(null=True, blank=True)
     nacio = models.CharField(max_length=50, null=True, blank=True)
     biogr = models.TextField()
 
     def __str__(self):
-        return f'{self.autor} {self.s_nome}'
+        return f'{self.autor} {self.s_autor}'
     
     
 class Editora(models.Model):
