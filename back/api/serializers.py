@@ -1,7 +1,5 @@
 from rest_framework import serializers
-from .models import Autor, Editora, Livro
-
-# === ADICIONE: imports para o cadastro ===
+from .models import Autor, Editora, Livro, Imagem
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
@@ -10,9 +8,8 @@ class AutorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Autor
         fields = '__all__'
-        
-class EditoraSerializer(serializers.ModelSerializer):
 
+class EditoraSerializer(serializers.ModelSerializer):
     class Meta:
         model = Editora
         fields = '__all__'
@@ -21,8 +18,7 @@ class LivroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Livro
         fields = '__all__'
-    
-# === ADICIONE: serializer de registro de usuário ===
+
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -31,7 +27,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all(), message="Usuário já existe.")]
     )
     password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password],
+        write_only=True,
+        required=True,
+        validators=[validate_password],
         style={'input_type': 'password'}
     )
 
@@ -43,4 +41,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         return User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password']
-        )   
+        )
+
+class ImageSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Imagem
+        fields = ['id', 'Imagem', 'url', 'criado_em']
+        read_only_fields = ['id', 'url', 'criado_em']
+
+    def get_url(self, obj):
+        if not obj.imagem:
+            return None
+        request = self.context.get("request")
+        url = obj.imagem.url
+        if request:
+            return request.build_absolute_uri(url)
+        return url
