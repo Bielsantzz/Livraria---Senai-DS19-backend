@@ -17,7 +17,9 @@ class EditoraSerializer(serializers.ModelSerializer):
 class LivroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Livro
-        fields = '__all__'
+        fields = ['id', 'titulo','subtitulo','autor','editora','isbn','descricao',
+                  'idioma','ano','paginas', 'preco', 'estoque','desconto', 
+                  'disponivel', 'dimensoes', 'peso','capa','capa_url' ]
 
 User = get_user_model()
 
