@@ -15,11 +15,22 @@ class EditoraSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class LivroSerializer(serializers.ModelSerializer):
+    capa_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Livro
-        fields = ['id', 'titulo','subtitulo','autor','editora','isbn','descricao',
-                  'idioma','ano','paginas', 'preco', 'estoque','desconto', 
-                  'disponivel', 'dimensoes', 'peso','capa','capa_url' ]
+        fields = [
+            'id', 'titulo','subtitulo','autor','editora','isbn','descricao',
+            'idioma','ano','paginas', 'preco', 'estoque','desconto', 
+            'disponivel', 'dimensoes', 'peso','capa','capa_url'
+        ]
+
+    def get_capa_url(self, obj):
+        request = self.context.get("request")
+        if obj.capa:
+            url = obj.capa.url
+            return request.build_absolute_uri(url) if request else url
+        return None
 
 User = get_user_model()
 
@@ -45,12 +56,12 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
 
-class ImageSerializer(serializers.ModelSerializer):
+class ImagemSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
 
     class Meta:
         model = Imagem
-        fields = ['id', 'Imagem', 'url', 'criado_em']
+        fields = ['id', 'imagem', 'url', 'criado_em']
         read_only_fields = ['id', 'url', 'criado_em']
 
     def get_url(self, obj):
@@ -58,6 +69,4 @@ class ImageSerializer(serializers.ModelSerializer):
             return None
         request = self.context.get("request")
         url = obj.imagem.url
-        if request:
-            return request.build_absolute_uri(url)
-        return url
+        return request.build_absolute_uri(url) if request else url

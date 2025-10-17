@@ -61,23 +61,23 @@ class EditorasDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = EditoraSerializer
     permission_classes =[IsAuthenticated]
 
-class LivrosView(ModelViewSet):
-    queryset = Livro.objects.all().order_by("-id")
+class LivrosView(ListCreateAPIView):
+    queryset = Livro.objects.all().select_related('autor')
     serializer_class = LivroSerializer
     parser_classes = [MultiPartParser, FormParser]  # aceita multipart
 
-    @action(detail=True, methods=["post"], parser_classes=[MultiPartParser, FormParser])
-    def capa(self, request, pk=None):
-        """POST /api/livros/{id}/capa/ com campo 'capa' (arquivo)"""
-        livro = self.get_object()
-        arquivo = request.FILES.get("capa")
-        if not arquivo:
-            return Response({"detail":"Arquivo 'capa' é obrigatório."},
-                            status=status.HTTP_400_BAD_REQUEST)
-        livro.capa = arquivo
-        livro.save(update_fields=["capa"])
-        return Response(self.get_serializer(livro).data, status=status.HTTP_200_OK)
-
+    #@action(detail=True, methods=["post"], parser_classes=[MultiPartParser, FormParser])
+    #def capa(self, request, pk=None):
+     #   """POST /api/livros/{id}/capa/ com campo 'capa' (arquivo)"""
+      #  livro = self.get_object()
+       # arquivo = request.FILES.get("capa")
+        #if not arquivo:
+         #   return Response({"detail":"Arquivo 'capa' é obrigatório."},
+          #                  status=status.HTTP_400_BAD_REQUEST)
+        #livro.capa = arquivo
+       # livro.save(update_fields=["capa"])
+       # return Response(self.get_serializer(livro).data, status=status.HTTP_200_OK)
+    
 class LivrosDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Livro.objects.all()
     serializer_class = LivroSerializer
