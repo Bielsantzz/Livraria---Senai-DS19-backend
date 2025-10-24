@@ -7,11 +7,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.tokens import RefreshToken
-from .filters import AutorFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.parsers import MultiPartParser, FormParser
+from .filters import AutorFilter, EditoraFilter, LivroFilter
 
 @api_view(['GET', 'POST'])
 def listar_autores(request):
@@ -31,10 +31,12 @@ class AutoresView(ListCreateAPIView):
     queryset = Autor.objects.all()
     serializer_class = AutorSerializer
     # permission_classes =[IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    # filterset_fields = ['id']               # Permite o filtro exato
-    # search_fields = ['nome', 'sobrenome']   # busca parcial: ?search=Jorge
-    filterset_class = AutorFilter           # Caso queira filtro duplo "Nome" e "Nacionalidade"
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['id']
+    search_fields = ['autor', 's_autor', 'nasc']   
+    ordering_fields = ['id', 'autor']
+    ordering = ['autor']
+    filterset_class = AutorFilter           
     
 class AutoresDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Autor.objects.all()
@@ -47,7 +49,10 @@ class EditorasView(ListCreateAPIView):
     # permission_classes =[IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['id', 'editora']
-    search_fields = ['editora']  
+    search_fields = ['editora']
+    ordering_fields = ['id', 'editora']
+    ordering = ['editora']  
+    filter_class = EditoraFilter
 
 class EditorasDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Editora.objects.all()
@@ -55,13 +60,15 @@ class EditorasDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes =[IsAuthenticated]
 
 class LivrosView(ListCreateAPIView):
-    queryset = Livro.objects.all().select_related('autor')
+    queryset = Livro.objects.all()
     serializer_class = LivroSerializer
+    #permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    search_fields = ['titulo', 'autor__nome', 'autor__sobrenome']
+    #filterset_fields = ['id', 'titulo']
+    search_fields = ['titulo', 'subtitulo', ]
     ordering_fields = ['id', 'titulo']
     ordering = ['titulo']
-
+    filterset_class =LivroFilter
 
 class LivrosDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Livro.objects.all()
@@ -96,7 +103,6 @@ class ImagemViewSet(ModelViewSet):
     serializer_class = ImagemSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -108,17 +114,15 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Livro
 from .serializers import LivroSerializer
 
-
 class LivroViewSet(ModelViewSet):
     queryset = Livro.objects.select_related("autor").order_by("-id")
     serializer_class = LivroSerializer
     parser_classes = [MultiPartParser, FormParser]
-
-    # filtros / busca / ordenação
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    search_fields = ["titulo", "autor__nome", "autor__sobrenome"]
-    ordering_fields = ["id", "titulo"]
-    ordering = ["titulo"]
+    #filtros / busca / ordenação
+    #filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    #search_fields = ["titulo", "autor__nome", "autor__sobrenome"]
+    #ordering_fields = ["id", "titulo"]
+    #ordering = ["titulo"]
 
     @action(detail=True, methods=["post"], parser_classes=[MultiPartParser, FormParser])
     def capa(self, request, pk=None):
